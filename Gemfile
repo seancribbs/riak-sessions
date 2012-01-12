@@ -1,7 +1,13 @@
 source :rubygems
 
 gem 'bundler'
-gem 'riak-client', :path => '../riak-client'
+
+if ENV['TRAVIS']
+  gem 'riak-client', :git => "git://github.com/basho/riak-ruby-client.git"
+else
+  gem 'riak-client', :path => '../riak-client'
+end
+
 gemspec
 
 platforms :mri do
