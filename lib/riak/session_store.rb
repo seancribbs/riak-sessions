@@ -54,16 +54,13 @@ module Riak
 
     private
     def get_session(env, session_id)
-      if session_id && robject = (bucket.get(session_id) rescue nil)
-        @session_id = session_id
-        if stale?(robject)
-          bucket.delete(session_id)
-          fresh_session
-        else
-          [session_id, robject.data]
-        end
-      else
+      return fresh_session unless session_id && robject = (bucket.get(session_id) rescue nil)
+      @session_id = session_id
+      if stale?(robject)
+        bucket.delete(session_id)
         fresh_session
+      else
+        [session_id, robject.data]
       end
     end
 
@@ -72,16 +69,12 @@ module Riak
         bucket.delete(session_id)
         return false if options[:drop]
         session_id = generate_sid
-      elsif session_id.nil?
+      elsif !session_id
         # Rails 2.3 kills the session id from the request when
         # reset_session is called. Working around that by temp.
         # storing it in the middleware and explicitly destroying it
         # as it's not guaranteed that Riak expiry is enabled
-        session_id = if @session_id
-                       destroy_session(env, @session_id, options)
-                     else
-                       generate_sid
-                     end
+        session_id = @session_id ? destroy_session(env, @session_id, options) : generate_sid
       end
 
       robject = bucket.get_or_new(session_id)
@@ -103,8 +96,6 @@ module Riak
     def stale?(robject)
       if robject.meta['expire-after'] && threshold = (Time.httpdate(robject.meta['expire-after'].first) rescue nil)
         threshold < Time.now
-      else
-        false
       end
     end
 
@@ -120,11 +111,17 @@ module Riak
     private
     def set_bucket_defaults
       bucket_opts = @default_options.slice(:r,:w,:dw,:rw,:n_val,:last_write_wins).stringify_keys
-      new_props = bucket_opts.inject({}) do |hash,(k,v)|
+      new_props = create_new_props(bucket_opts)
+      @bucket.props = new_props unless new_props.empty?
+    end
+
+    # Don't know what to call this but I think
+    # that it's cleaner this way.
+    def create_new_props(bucket_options)
+      bucket_options.inject({}) do |hash, (k,v)|
         hash[k] = v unless @bucket.props[k] == v
         hash
       end
-      @bucket.props = new_props unless new_props.empty?
     end
   end
 end

@@ -51,20 +51,22 @@ module Ripple
     end
 
     def destroy(env)
-      if sid = current_session_id(env)
-        @bucket.delete(sid)
-      end
+      @bucket.delete current_session_id(env)
     rescue Riak::FailedRequest
       false
     end
 
     def set_bucket_defaults
       bucket_opts = @default_options.slice(:r,:w,:dw,:rw,:n_val,:last_write_wins).stringify_keys
-      new_props = bucket_opts.inject({}) do |hash,(k,v)|
+      new_props = create_new_props(bucket_opts)
+      @bucket.props = new_props unless new_props.empty?
+    end
+
+    def create_new_props(bucket_options)
+      bucket_options.inject({}) do |hash,(k,v)|
         hash[k] = v unless @bucket.props[k] == v
         hash
       end
-      @bucket.props = new_props unless new_props.empty?
     end
   end
 end
