@@ -17,7 +17,7 @@ Gem::Specification.new do |gem|
   gem.add_development_dependency "yajl-ruby"
   gem.add_development_dependency "rails", "~>3.0.0"
   gem.add_development_dependency "rake"
-  gem.add_dependency "riak-client", "~>#{Riak::Sessions::VERSION}"
+  gem.add_dependency "riak-client", "~> 1.0.0"
   gem.add_dependency "rack", ">=1.0"
 
   # Files

@@ -2,9 +2,7 @@ source :rubygems
 
 gem 'bundler'
 
-if ENV['TRAVIS']
-  gem 'riak-client', :git => "git://github.com/basho/riak-ruby-client.git"
-else
+if File.directory?(File.expand_path("../../riak-client", __FILE__))
   gem 'riak-client', :path => '../riak-client'
 end
 
