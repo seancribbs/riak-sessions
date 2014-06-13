@@ -1,27 +1,33 @@
 require 'riak/test_server'
 
-RSpec.configure do |config|
-  config.before do
+module TestServerSupport
+  def test_server
     unless $test_server
       begin
-        config = YAML.load_file(File.expand_path("../test_server.yml", __FILE__))
-        $test_server = Riak::TestServer.create(:root => config['root'],
-                                               :source => config['source'],
-                                               :min_port => config['min_port'] || 15000)
+        $test_server = Riak::TestServer.new(
+          root:     '/tmp/riak-sessions-test',
+          source:   File.dirname(`which riak`),
+          min_port: 15000 )
+      rescue SocketError => e
+        warn "Couldn't connect to Riak TestServer! #{$test_server.inspect}"
+        warn_crash_log
+        $test_server_fatal = e
       rescue => e
-        $stderr.puts "Can't run riak-sessions specs without the test server. Specify the location of your Riak installation in spec/support/test_server.yml"
-        $stderr.puts e.inspect
-        exit 1
+        warn e.inspect
+        warn_crash_log
+        $test_server_fatal = e
       end
     end
-    $test_server.start
+    $test_server
   end
 
-  config.after do
-    $test_server.drop
+  def test_server_fatal
+    $test_server_fatal
   end
 
-  config.after(:suite) do
-    $test_server.stop
+  def warn_crash_log
+    if $test_server && crash_log = $test_server.log + 'crash.log'
+      warn crash_log.read if crash_log.exist?
+    end
   end
 end

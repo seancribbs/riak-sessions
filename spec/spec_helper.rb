@@ -8,14 +8,27 @@ require 'riak'
 require 'riak-sessions'
 require 'rspec'
 
-%w[
-  ripple_session_support
-  rspec-rails-neuter
-  test_server
-].each do |file|
-  require File.join("support", file)
-end
+Dir.glob('./spec/support/**/*.rb').each { |f| require f }
 
 RSpec.configure do |config|
   config.mock_with :rspec
+
+  config.include TestServerSupport
+
+  config.before(:each) do
+    fail "Test server not working: #{test_server_fatal}" if test_server_fatal
+
+    test_server.create unless test_server.exist?
+    test_server.start
+  end
+
+  config.after(:each) do
+    if test_server && !test_server_fatal && test_server.started?
+      test_server.drop
+    end
+  end
+
+  config.after(:suite) do
+    $test_server.stop if $test_server
+  end
 end

@@ -35,3 +35,8 @@ Gemfile.lock
 **/.riaktest
 vendor/erlang
 vendor/riak
+
+## RVM
+.rvmrc
+.ruby-gemset
+.ruby-version
