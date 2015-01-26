@@ -12,7 +12,7 @@ module Ripple
   class SessionStore < ActionDispatch::Session::AbstractStore
     def initialize(app, options={})
       super
-      @default_options = {
+      @default_options = options.merge({
         :bucket => "_sessions",
         :r => 1,
         :w => 1,
@@ -22,7 +22,7 @@ module Ripple
         :last_write_wins => false,
         :host => "127.0.0.1",
         :http_port => 8098
-      }.merge(@default_options)
+      })
       @client = Riak::Client.new(@default_options.slice(*Riak::Client::VALID_OPTIONS))
       @bucket = @client.bucket(@default_options[:bucket])
       set_bucket_defaults
