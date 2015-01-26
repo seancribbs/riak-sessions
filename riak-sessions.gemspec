@@ -12,12 +12,12 @@ Gem::Specification.new do |gem|
   gem.authors = ["Sean Cribbs"]
 
   # Deps
-  gem.add_development_dependency "rspec", "~>2.6.0"
-  gem.add_development_dependency "rspec-rails", "~>2.6.0"
+  gem.add_development_dependency "rspec", "~>2.13"
+  gem.add_development_dependency "rspec-rails", "~>2.13"
   gem.add_development_dependency "yajl-ruby"
   gem.add_development_dependency "rails", "~>3.0.0"
   gem.add_development_dependency "rake"
-  gem.add_dependency "riak-client", "~> 1.0.0"
+  gem.add_dependency "riak-client", ">= 2.0"
   gem.add_dependency "rack", ">=1.0"
 
   # Files
