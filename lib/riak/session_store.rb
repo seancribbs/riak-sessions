@@ -1,6 +1,6 @@
 
 require 'riak'
-require 'rack/session/abstract/id'
+require 'action_dispatch/middleware/session/abstract_store'
 
 module Riak
   # Lets you store web application session data in Riak.
@@ -17,8 +17,8 @@ module Riak
   #   config.middleware.swap ActionController::Session::CookieStore, Riak::SessionStore
   #
   # For configuration options, see #initialize.
-  class SessionStore < Rack::Session::Abstract::ID
-    DEFAULT_OPTIONS = Rack::Session::Abstract::ID::DEFAULT_OPTIONS.merge \
+  class SessionStore < ActionDispatch::Session::AbstractStore
+    DEFAULT_OPTIONS = ActionDispatch::Session::AbstractStore::DEFAULT_OPTIONS.merge \
     :host => "127.0.0.1",
     :http_port => 8098,
     :bucket => "_sessions",
